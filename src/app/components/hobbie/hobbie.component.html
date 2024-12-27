@@ -1,0 +1,5 @@
+@if($hobbies()?.length){
+    @for(hobby of $hobbies(); track hobby.id){
+    <p>{{hobby.name}}</p>
+    }
+}

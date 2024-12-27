@@ -1,0 +1,82 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Carmen",
+      "surname": "Ruiz",
+      "email": "carmen.ruiz@example.com"
+    },
+    {
+      "id": "2",
+      "name": "Miguel",
+      "surname": "López",
+      "email": "miguel.lopez@example.com"
+    },
+    {
+      "id": "3",
+      "name": "Ana",
+      "surname": "Martínez",
+      "email": "ana.martinez@example.com"
+    },
+    {
+      "id": "4",
+      "name": "David",
+      "surname": "García",
+      "email": "david.garcia@example.com"
+    },
+    {
+      "id": "5",
+      "name": "Laura",
+      "surname": "Fernández",
+      "email": "laura.fernandez@example.com"
+    },
+    {
+      "id": "6",
+      "name": "Jhon",
+      "surname": "Doe sin hobbies",
+      "email": "jhon.dow@example.com"
+    }
+  ],
+  "hobbies": [
+    {
+      "id": "1",
+      "name": "lectura",
+      "userId": "1"
+    },
+    {
+      "id": "2",
+      "name": "fotografía",
+      "userId": "1"
+    },
+    {
+      "id": "3",
+      "name": "yoga",
+      "userId": "2"
+    },
+    {
+      "id": "4",
+      "name": "música",
+      "userId": "2"
+    },
+    {
+      "id": "5",
+      "name": "deporte",
+      "userId": "3"
+    },
+    {
+      "id": "6",
+      "name": "pintura",
+      "userId": "4"
+    },
+    {
+      "id": "7",
+      "name": "jardinería",
+      "userId": "5"
+    },
+    {
+      "id": "8",
+      "name": "lectura",
+      "userId": "2"
+    }
+  ]
+}

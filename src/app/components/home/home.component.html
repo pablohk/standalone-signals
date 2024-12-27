@@ -1,0 +1,38 @@
+<div class="home-container">
+  <div class="header">
+    <p>Users <button (click)="reloadUserList()">Reload</button></p>
+    <p>Hobbies <button (click)="reloadUserHobbies()">Reload</button></p>
+  </div>
+  <div class="content">
+    <div class="half">
+      <div [ngClass]="{'full': $loadingUserList() || $errorUserList()}">
+        @if($loadingUserList()){
+        <p>Loading List...</p>
+        }
+        @if($errorUserList()){
+        <p class="error">Error List: {{$errorUserList()}}</p>
+        }
+      </div>
+      @if($userList().length){
+      @for(user of $userList(); track user.id){
+      <div class="clickable" (click)="showUserHobbies(user.id)">
+        <p [ngClass]="{selected: $userId() === user.id}">({{user.id}}) {{user.name}} {{user.surname}} - {{user.email}}
+        </p>
+      </div>
+      }
+      }
+    </div>
+    <div class="half">
+      <div [ngClass]="{'full': $loadingHobbie() || $errorHobbie()}">
+        @if($loadingHobbie()){
+        <p>Loading Hobbie...</p>
+        }
+        @if($errorHobbie()){
+        <p class="error">Error Hobbie: {{$errorHobbie()}}</p>
+        }
+      </div>
+      <hobbie [$hobbies]="$hobbies()"></hobbie>
+    </div>
+  </div>
+
+</div>
