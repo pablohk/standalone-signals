@@ -1,7 +1,5 @@
-export interface I_SERVICE_RESPONSE {
-  loading: boolean;
-  error: string | null;
-}
+import { WritableSignal } from "@angular/core";
+
 export interface I_OBJECT {
   [key: string]: any;
 }

@@ -1,10 +1,6 @@
-import { computed, Injectable, signal } from '@angular/core';
-
+import { computed, effect, Injectable, signal } from '@angular/core';
 import { GenericApiService } from './generic-api.service';
-
 import { E_API_METHOD } from '../models/sharedModels';
-import { finalize } from 'rxjs/operators';
-import { setErrorMessage } from '../utils/shared.utils';
 
 export interface I_HOBBIE {
   id: string;
@@ -29,7 +25,14 @@ const initialUserState: I_USER = {
   hobbies: [],
 };
 
-@Injectable()
+const USER_SERVICE_ID = {
+  USER_LIST: 'USER_LIST',
+  USER_HOBBIES: 'USER_HOBBIES'
+}
+
+@Injectable({
+  providedIn: 'root'
+})
 export class UserApiService extends GenericApiService {
   private readonly BASE_PATH = 'http://localhost:3000';
   private readonly USER_ENDPOINT = '/users';
@@ -40,22 +43,26 @@ export class UserApiService extends GenericApiService {
   private _$userLoading = this.$apiLoading;
   private _$userErrorMessage = this.$apiError;
   private _$userList = computed(() => this.$userState().userList);
-
-  private _$userHobbieLoading = signal<boolean>(false);
-  private _$userHobbieErrorMessage = signal<string | null>(null);
   private _$hobbies = computed(() => this.$userState().hobbies);
 
   constructor() {
-    super();
+    super(USER_SERVICE_ID);
+    effect(()=>console.log('---effect: USER_LIST', 
+      this._$userLoading[USER_SERVICE_ID.USER_LIST](), 
+      this._$userErrorMessage[USER_SERVICE_ID.USER_LIST](),
+      ', USER_HOBBIES',
+      this._$userLoading[USER_SERVICE_ID.USER_HOBBIES](), 
+      this._$userErrorMessage[USER_SERVICE_ID.USER_HOBBIES](),
+    ))
   }
 
   // Selectors
   public selectUserLoading() {
-    return this._$userLoading;
+    return this._$userLoading[USER_SERVICE_ID.USER_LIST];
   }
 
   public selectUserError() {
-    return this._$userErrorMessage;
+    return this._$userErrorMessage[USER_SERVICE_ID.USER_LIST];
   }
 
   public selectUserList() {
@@ -63,11 +70,11 @@ export class UserApiService extends GenericApiService {
   }
 
   public selectUserHobbieLoading() {
-    return this._$userHobbieLoading;
+    return this._$userLoading[USER_SERVICE_ID.USER_HOBBIES];
   }
 
   public selectUserHobbieError() {
-    return this._$userHobbieErrorMessage;
+    return this._$userErrorMessage[USER_SERVICE_ID.USER_HOBBIES];
   }
 
   public selectHobbies() {
@@ -78,37 +85,55 @@ export class UserApiService extends GenericApiService {
   public fetchUserList() {
     this.getRequestApi<Array<I_USER_ITEM>>(
       E_API_METHOD.GET,
-      `${this.BASE_PATH}${this.USER_ENDPOINT}`
+      `${this.BASE_PATH}${this.USER_ENDPOINT}`,
+      USER_SERVICE_ID.USER_LIST
     ).subscribe((response) => {
       this.reducerSetUserList(response);
     });
   }
 
   public fetchHobbies(id: string) {
-    this._$userHobbieLoading.set(true);
-    this._$userHobbieErrorMessage.set(null);
     const options = {
       params: {
         userId: id,
       },
     };
 
-    this.getRequestApiWithoutState<Array<I_HOBBIE>>(
+    this.getRequestApi<Array<I_HOBBIE>>(
       E_API_METHOD.GET,
       `${this.BASE_PATH}${this.USER_HOBBIES_ENDPOINT}`,
+      USER_SERVICE_ID.USER_HOBBIES,
       options
-    )
-      .pipe(finalize(() => this._$userHobbieLoading.set(false)))
-      .subscribe({
-        next: (response) => {
-          this.reducerSetUserHobbies(response);
-        },
-        error: (error) => {
-          console.log(error);
-          this._$userHobbieErrorMessage.set(setErrorMessage(error));
-        },
-      });
+    ).subscribe((response) => {
+      this.reducerSetUserHobbies(response);
+    });
   }
+
+  // public fetchHobbies(id: string) {
+  //   this._$userHobbieLoading.set(true);
+  //   this._$userHobbieErrorMessage.set(null);
+  //   const options = {
+  //     params: {
+  //       userId: id,
+  //     },
+  //   };
+
+  //   this.getRequestApiWithoutState<Array<I_HOBBIE>>(
+  //     E_API_METHOD.GET,
+  //     `${this.BASE_PATH}${this.USER_HOBBIES_ENDPOINT}`,
+  //     options
+  //   )
+  //     .pipe(finalize(() => this._$userHobbieLoading.set(false)))
+  //     .subscribe({
+  //       next: (response) => {
+  //         this.reducerSetUserHobbies(response);
+  //       },
+  //       error: (error) => {
+  //         console.log(error);
+  //         this._$userHobbieErrorMessage.set(setErrorMessage(error));
+  //       },
+  //     });
+  // }
 
   public resetHobbies() {
     this.reducerResetHobbies();
