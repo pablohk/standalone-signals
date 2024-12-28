@@ -109,32 +109,6 @@ export class UserApiService extends GenericApiService {
     });
   }
 
-  // public fetchHobbies(id: string) {
-  //   this._$userHobbieLoading.set(true);
-  //   this._$userHobbieErrorMessage.set(null);
-  //   const options = {
-  //     params: {
-  //       userId: id,
-  //     },
-  //   };
-
-  //   this.getRequestApiWithoutState<Array<I_HOBBIE>>(
-  //     E_API_METHOD.GET,
-  //     `${this.BASE_PATH}${this.USER_HOBBIES_ENDPOINT}`,
-  //     options
-  //   )
-  //     .pipe(finalize(() => this._$userHobbieLoading.set(false)))
-  //     .subscribe({
-  //       next: (response) => {
-  //         this.reducerSetUserHobbies(response);
-  //       },
-  //       error: (error) => {
-  //         console.log(error);
-  //         this._$userHobbieErrorMessage.set(setErrorMessage(error));
-  //       },
-  //     });
-  // }
-
   public resetHobbies() {
     this.reducerResetHobbies();
   }

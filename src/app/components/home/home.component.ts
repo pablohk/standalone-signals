@@ -13,7 +13,7 @@ import { NgClass } from '@angular/common';
   selector: 'home',
   standalone: true,
   imports: [HobbieComponent, NgClass],
-  providers: [UserApiService],
+  providers: [],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

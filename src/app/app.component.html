@@ -1,7 +1,7 @@
 <div class="app-container">
-  <p class="description">Versión con generic-api.service que maneja el error y loading con signals.
-    Tiene un sólo metodo para manejar las peticiones http, devolviendo un Observable T. 
-    Luego los servicios que extienden de el se subscriben para manejar el payload y tratarlo como signals
+  <p class="description">Versión V2: Como la V1 pero manejando el loading , error con un objeto clave - signal.
+    La clave identifica el endpoint usado. Así podemos manejar si hay varios loadings - errors en una misma vista.
+    El sevicio user-api se convierte en singleton ( provideIn: root)
   </p>
   <nav>
     <a routerLink="/home" routerLinkActive="active">HOME</a>

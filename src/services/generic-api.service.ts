@@ -18,17 +18,17 @@ export  abstract class GenericApiService {
   protected $apiLoading: { [key: string]: Signal<boolean> } = {};
   protected $apiError: { [key: string]: Signal<string | null> } = {};
 
-  constructor(@Inject('') private readonly endpointsIds: I_OBJECT){
+  constructor(@Inject('') private readonly endpointsIds?: I_OBJECT){
+    if(endpointsIds){
+      for(let e in  this.endpointsIds){
+        const keyName = endpointsIds[e];
+        this._$apiLoading[keyName]= signal<boolean>(false);
+        this._$apiError[keyName]= signal<string | null>(null);
 
-    for(let e in  this.endpointsIds){
-      const keyName = endpointsIds[e];
-      this._$apiLoading[keyName]= signal<boolean>(false);
-      this._$apiError[keyName]= signal<string | null>(null);
-
-      this.$apiLoading[keyName] = computed(() => this._$apiLoading[keyName]());
-      this.$apiError[keyName] = computed(() => this._$apiError[keyName]());
+        this.$apiLoading[keyName] = computed(() => this._$apiLoading[keyName]());
+        this.$apiError[keyName] = computed(() => this._$apiError[keyName]());
+      }
     }
-
   }
 
   protected getRequestApi<T>(

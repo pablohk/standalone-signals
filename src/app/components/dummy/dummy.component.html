@@ -1,0 +1,16 @@
+<h4> Por un lado llama al servicio dummy usando el generic-api sin estado
+    y por otro lado cogemos los datos de userList y userHobbies de su signal de userService.
+     Si en otro punto de la aplicación se ha cargado los datos de userList, los podremos ver aquí
+</h4>
+<p>DummyData: ({{$dummyData()?.id}})  {{$dummyData()?.status}}</p>
+
+@if($userList().length){
+    @for(user of $userList(); track user.id){
+    <div>
+        <p>({{user.id}}) {{user.name}} {{user.surname}} - {{user.email}}
+        </p>
+    </div>
+    }
+}
+
+<hobbie [$hobbies]="$hobbies()"></hobbie>

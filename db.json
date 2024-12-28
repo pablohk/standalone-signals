@@ -78,5 +78,9 @@
       "name": "lectura",
       "userId": "2"
     }
-  ]
+  ],
+  "dummy": {
+    "id": "1",
+    "status": "dummy status"
+  }
 }
