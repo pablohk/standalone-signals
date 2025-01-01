@@ -1,7 +1,5 @@
-import { WritableSignal } from "@angular/core";
-
-export interface I_OBJECT {
-  [key: string]: any;
+export interface I_OBJECT<T=any> {
+  [key: string]: T;
 }
 
 export enum E_API_METHOD {

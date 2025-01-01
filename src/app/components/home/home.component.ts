@@ -21,34 +21,35 @@ import { NgClass } from '@angular/common';
 export class HomeComponent implements OnInit {
   private userService = inject(UserApiService);
 
-  $loadingUserList = this.userService.selectUserLoading();
-  $errorUserList = this.userService.selectUserError();
-  $userList = this.userService.selectUserList();
+  $loadingUserList = this.userService.$selectUserLoading;
+  $errorUserList = this.userService.$selectUserError;
+  $userList = this.userService.$selectUserList;
+  $userIdSelected = this.userService.$selectUserIdSelected;
 
-  $loadingHobbie = this.userService.selectUserHobbieLoading();
-  $errorHobbie = this.userService.selectUserHobbieError();
-  $hobbies = this.userService.selectHobbies();
-
-  $userId = signal<string>('');
+  $loadingHobbie = this.userService.$selectUserHobbieLoading;
+  $errorHobbie = this.userService.$selectUserHobbieError;
+  $hobbies = this.userService.$selectHobbies;
 
   ngOnInit(): void {
-    this.userService.fetchUserList();
+    this.initHomeWorks();
   }
 
-  showUserHobbies(id: string) {
-    this.$userId.set(id);
+  public showUserHobbies(id: string): void {
     this.userService.fetchHobbies(id);
   }
 
-  reloadUserList() {
-    this.$userId.set('');
-    this.userService.resetHobbies();
+  public reloadUserList(): void {
     this.userService.fetchUserList();
   }
 
-  reloadUserHobbies() {
-    if (this.$userId()) {
-      this.userService.fetchHobbies(this.$userId());
+  public reloadUserHobbies(): void {
+    if(this.$userIdSelected() !== null){
+      this.userService.fetchHobbies(this.$userIdSelected() as string, true);
     }
   }
+
+  private initHomeWorks():void {
+    this.userService.fetchUserList();
+  }
+
 }

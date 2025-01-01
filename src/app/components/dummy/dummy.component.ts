@@ -20,12 +20,16 @@ export class DummyComponent implements OnInit {
   private userService = inject(UserApiService);
   private dummyService = inject(DummyApiService);
 
-  $userList = this.userService.selectUserList();
-  $hobbies = this.userService.selectHobbies();
+  $userList = this.userService.$selectUserList;
+  $hobbies = this.userService.$selectHobbies;
 
   $dummyData = this.dummyService.selectDummyData();
 
   ngOnInit(): void {
+    this.initDummyWorks();
+  }
+
+  private initDummyWorks():void {
     this.dummyService.fetchDummyData();
   }
 }

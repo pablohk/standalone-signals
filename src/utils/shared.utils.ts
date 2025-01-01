@@ -1,10 +1,5 @@
 import { I_OBJECT } from "../models/sharedModels";
 
-export const INITIAL_STATE = {
-  loading: false,
-  error: null,
-};
-
 export const setErrorMessage = (error: any): string => {
   return JSON.stringify(error);
 };
