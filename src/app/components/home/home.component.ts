@@ -3,7 +3,6 @@ import {
   Component,
   inject,
   OnInit,
-  signal,
 } from '@angular/core';
 import { HobbieComponent } from '../hobbie/hobbie.component';
 import { UserApiService } from '../../../services/user-api.service';
@@ -49,6 +48,7 @@ export class HomeComponent implements OnInit {
   }
 
   private initHomeWorks():void {
+    this.userService.resetState();
     this.userService.fetchUserList();
   }
 

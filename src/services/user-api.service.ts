@@ -1,6 +1,7 @@
 import { computed, effect, Injectable, signal } from '@angular/core';
 import { GenericApiService } from './generic-api.service';
 import { E_API_METHOD, I_OBJECT } from '../models/sharedModels';
+import { take } from 'rxjs/operators';
 
 export interface I_HOBBIE {
   id: string;
@@ -39,14 +40,16 @@ export class UserApiService extends GenericApiService {
   private readonly BASE_PATH = 'http://localhost:3000';
   private readonly USER_ENDPOINT = '/users';
   private readonly USER_HOBBIES_ENDPOINT = '/hobbies';
-  
+
   private _$userState = signal<I_USER>(initialUserState);
- 
+
   constructor() {
     super(USER_SERVICE_ID);
     effect(() =>
       console.log(
         '---effect: USER_LIST',
+        this.$selecApiLoading,
+        this.$selectApiError,
         this.$selecApiLoading[USER_SERVICE_ID.USER_LIST](),
         this.$selectApiError[USER_SERVICE_ID.USER_LIST](),
         ', USER_HOBBIES',
@@ -88,9 +91,11 @@ export class UserApiService extends GenericApiService {
       E_API_METHOD.GET,
       `${this.BASE_PATH}${this.USER_ENDPOINT}`,
       USER_SERVICE_ID.USER_LIST
-    ).subscribe((response) => {
-      this.storeUserList(response);
-    });
+    )
+      .pipe(take(1))
+      .subscribe((response) => {
+        this.storeUserList(response);
+      });
   }
 
   public fetchHobbies(id: string, force = false) {
@@ -106,13 +111,24 @@ export class UserApiService extends GenericApiService {
         `${this.BASE_PATH}${this.USER_HOBBIES_ENDPOINT}`,
         USER_SERVICE_ID.USER_HOBBIES,
         options
-      ).subscribe((response) => {
+      )
+      .pipe(take(1))
+      .subscribe((response) => {
         this.storeHobbies(response, id);
       });
     }
   }
 
+  public resetState(): void {
+    this.storeReset();
+    this.resetApiErrorLoading(USER_SERVICE_ID); 
+  }
+
   // REDUCRES
+  private storeReset(): void {
+    this.updateState(initialUserState);
+  }
+  
   private storeUserList(response: I_USER_ITEM[]): void {
     this.updateState({ userList: response, hobbies: [], userIdSelected: null });
   }

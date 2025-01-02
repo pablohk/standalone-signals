@@ -57,6 +57,14 @@ export abstract class GenericApiService {
     this._$apiError[endpointId].set(value);
   }
 
+  protected resetApiErrorLoading(endpointsIds: I_OBJECT): void {
+    Object.keys(endpointsIds).forEach((keyName) => {
+      this._$apiLoading[keyName].set(false);
+      this._$apiError[keyName].set(null);
+    });
+  
+  }
+
   private initializeSignals(keyName: string): void {
     this._$apiLoading[keyName] = signal<boolean>(false);
     this._$apiError[keyName] = signal<string | null>(null);
@@ -74,8 +82,10 @@ export abstract class GenericApiService {
     const request = this.http
       .request<T>(method, url, <Object>joinedOptions)
       .pipe(
-        take(1),
-        delay(1000)  //TESTING PROPOSAL. DELETE ON PRODUCTION
+        delay(1000),  //TESTING PROPOSAL. DELETE ON PRODUCTION
+        catchError((error) => {
+          throw setErrorMessage(error);
+        }),
       );
 
     return endpointId ? this.withState(request, endpointId) : request;
@@ -87,8 +97,8 @@ export abstract class GenericApiService {
 
     return request.pipe(
       catchError((error) => {
-        this._$apiError[endpointId].set(setErrorMessage(error));
-        throw error;
+        this._$apiError[endpointId].set(error);
+        return [];
       }),
       finalize(() => this._$apiLoading[endpointId].set(false))
     );

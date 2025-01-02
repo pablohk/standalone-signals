@@ -3,10 +3,13 @@ import {
   Component,
   inject,
   OnInit,
+  signal,
+  Signal,
 } from '@angular/core';
 import { UserApiService } from '../../../services/user-api.service';
-import { DummyApiService } from '../../../services/dummy-api.service';
+import { DummyApiService, I_Dummy } from '../../../services/dummy-api.service';
 import { HobbieComponent } from '../hobbie/hobbie.component';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'dummy',
@@ -23,13 +26,24 @@ export class DummyComponent implements OnInit {
   $userList = this.userService.$selectUserList;
   $hobbies = this.userService.$selectHobbies;
 
-  $dummyData = this.dummyService.selectDummyData();
+  $dummyData= signal<I_Dummy | null>(null);
+  $error= signal<string | null>(null);
 
   ngOnInit(): void {
     this.initDummyWorks();
   }
 
-  private initDummyWorks():void {
-    this.dummyService.fetchDummyData();
+  private initDummyWorks(): void {
+    this.dummyService
+      .fetchDummyData()
+      .pipe(take(1))
+      .subscribe({
+        next: (value) => {
+          this.$dummyData.set(value);
+        },
+        error: (error) => {
+          this.$error.set(error);
+        },
+      });
   }
 }

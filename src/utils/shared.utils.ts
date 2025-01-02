@@ -1,7 +1,7 @@
 import { I_OBJECT } from "../models/sharedModels";
 
 export const setErrorMessage = (error: any): string => {
-  return JSON.stringify(error);
+  return JSON.stringify(error?.message);// IMPLEMENTAR UNA FUNCION QUE DEVUELVA UN MENSAJE DE ERROR
 };
 
   export const joinOptions= (customOptions: I_OBJECT | undefined): I_OBJECT =>{
