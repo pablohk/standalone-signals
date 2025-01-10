@@ -1,7 +1,6 @@
 <div class="app-container">
-  <p class="description">Versión V2: Como la V1 pero manejando el loading , error con un objeto clave - signal.
-    La clave identifica el endpoint usado. Así podemos manejar si hay varios loadings - errors en una misma vista.
-    El sevicio user-api se convierte en singleton ( provideIn: root)
+  <p class="description">Versión V3: La lógica de loading - error lo llevamos a los servicios concretos.
+    Dejamos el generic-api sólo para las llamadas api, sin manejar ningún estado
   </p>
   <nav>
     <a routerLink="/home" routerLinkActive="active">HOME</a>

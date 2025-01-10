@@ -4,7 +4,6 @@ import {
   inject,
   OnInit,
   signal,
-  Signal,
 } from '@angular/core';
 import { UserApiService } from '../../../services/user-api.service';
 import { DummyApiService, I_Dummy } from '../../../services/dummy-api.service';
@@ -23,8 +22,8 @@ export class DummyComponent implements OnInit {
   private userService = inject(UserApiService);
   private dummyService = inject(DummyApiService);
 
-  $userList = this.userService.$selectUserList;
-  $hobbies = this.userService.$selectHobbies;
+  $userList = this.userService.$selectUserList();
+  $hobbies = this.userService.$selectHobbies();
 
   $dummyData= signal<I_Dummy | null>(null);
   $error= signal<string | null>(null);

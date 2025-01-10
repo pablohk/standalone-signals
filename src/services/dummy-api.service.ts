@@ -17,18 +17,11 @@ export class DummyApiService extends GenericApiService {
 
   constructor() {
     super();
-    effect(() =>
-      console.log(
-        '---effect: DummyApiService',
-        this.$selecApiLoading,
-        this.$selectApiError
-      )
-    );
   }
 
-  // Al usar withoutstate, devolvemos el observable directamente y donde se use se manejará el error
+  // No manejamos aquí el estado,  devolvemos el observable directamente y donde se use se manejará el error
   public fetchDummyData() {
-    return this.getRequestApiWithoutState<I_Dummy>(
+    return this.getRequestApi<I_Dummy>(
       E_API_METHOD.GET,
       `${this.BASE_PATH}${this.DUMMY_ENDPOINT}`
     ).pipe(take(1));

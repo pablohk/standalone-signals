@@ -20,14 +20,14 @@ import { NgClass } from '@angular/common';
 export class HomeComponent implements OnInit {
   private userService = inject(UserApiService);
 
-  $loadingUserList = this.userService.$selectUserLoading;
-  $errorUserList = this.userService.$selectUserError;
-  $userList = this.userService.$selectUserList;
-  $userIdSelected = this.userService.$selectUserIdSelected;
+  $loadingUserList = this.userService.$selectUserListLoading();
+  $errorUserList = this.userService.$selectUserListError();
+  $userList = this.userService.$selectUserList();
+  $userIdSelected = this.userService.$selectUserIdSelected();
 
-  $loadingHobbie = this.userService.$selectUserHobbieLoading;
-  $errorHobbie = this.userService.$selectUserHobbieError;
-  $hobbies = this.userService.$selectHobbies;
+  $loadingHobbie = this.userService.$selectUserHobbieLoading();
+  $errorHobbie = this.userService.$selectUserHobbieError();
+  $hobbies = this.userService.$selectHobbies();
 
   ngOnInit(): void {
     this.initHomeWorks();
