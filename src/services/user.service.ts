@@ -1,14 +1,12 @@
 import {
   computed,
-  effect,
   Injectable,
-  Signal,
   signal,
   WritableSignal,
 } from '@angular/core';
 import { GenericApiService } from './generic-api.service';
 import { E_API_METHOD, I_OBJECT } from '../models/sharedModels';
-import { delay, finalize, take } from 'rxjs/operators';
+import { finalize, take } from 'rxjs/operators';
 
 export interface I_HOBBIE {
   id: string;
@@ -43,7 +41,7 @@ const USER_SERVICE_ID = {
 @Injectable({
   providedIn: 'root',
 })
-export class UserApiService extends GenericApiService {
+export class UserService extends GenericApiService {
   private readonly BASE_PATH = 'http://localhost:3000';
   private readonly USER_ENDPOINT = '/users';
   private readonly USER_HOBBIES_ENDPOINT = '/hobbies';
@@ -55,24 +53,6 @@ export class UserApiService extends GenericApiService {
   constructor() {
     super();
     this.initializeSignals();
-    effect(() => {
-      console.log('---effect: loading object', this._$userLoading);
-      console.log('---effect: error object', this._$userError);
-      console.log('---effect: userState:', this._$userState());
-      console.log(
-        '---effect: USER_LIST loading:' +
-          this.$selectUserListLoading()() +
-          ' ,error:',
-
-        this.$selectUserListError()()
-      );
-      console.log(
-        '---effect: USER_HOBBIES loading:' +
-          this.$selectUserHobbieLoading()() +
-          ' ,error',
-        this.$selectUserHobbieError()()
-      );
-    });
   }
 
   // SELECTORS
@@ -100,13 +80,12 @@ export class UserApiService extends GenericApiService {
     this.storeSetLoading(USER_SERVICE_ID.USER_LIST, true);
     this.storeSetError(USER_SERVICE_ID.USER_LIST, null);
 
-    this.getRequestApi<Array<I_USER_ITEM>>(
+    this.requestApi<Array<I_USER_ITEM>>(
       E_API_METHOD.GET,
       `${this.BASE_PATH}${this.USER_ENDPOINT}`
     )
       .pipe(
         take(1),
-        delay(1000), //TESTING PROPOSAL. DELETE ON PRODUCTION
         finalize(() => this.storeSetLoading(USER_SERVICE_ID.USER_LIST, false))
       )
       .subscribe({
@@ -121,22 +100,22 @@ export class UserApiService extends GenericApiService {
 
   public fetchHobbies(id: string, force = false) {
     if (this._$userState().userIdSelected !== id || force) {
+      this.storeSetLoading(USER_SERVICE_ID.USER_HOBBIES, true);
+      this.storeSetError(USER_SERVICE_ID.USER_HOBBIES, null);
+
       const options = {
         params: {
           userId: id,
         },
       };
-      this.storeSetLoading(USER_SERVICE_ID.USER_HOBBIES, true);
-      this.storeSetError(USER_SERVICE_ID.USER_HOBBIES, null);
 
-      this.getRequestApi<Array<I_HOBBIE>>(
+      this.requestApi<Array<I_HOBBIE>>(
         E_API_METHOD.GET,
         `${this.BASE_PATH}${this.USER_HOBBIES_ENDPOINT}`,
         options
       )
         .pipe(
           take(1),
-          delay(1000), //TESTING PROPOSAL. DELETE ON PRODUCTION
           finalize(() =>
             this.storeSetLoading(USER_SERVICE_ID.USER_HOBBIES, false)
           )

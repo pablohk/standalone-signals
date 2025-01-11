@@ -1,11 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
   OnInit,
+  Signal,
 } from '@angular/core';
 import { HobbieComponent } from '../hobbie/hobbie.component';
-import { UserApiService } from '../../../services/user-api.service';
+import { I_HOBBIE, I_USER_ITEM, UserService } from '../../../services/user.service';
 import { NgClass } from '@angular/common';
 
 @Component({
@@ -18,18 +20,23 @@ import { NgClass } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit {
-  private userService = inject(UserApiService);
+  private userService = inject(UserService);
 
-  $loadingUserList = this.userService.$selectUserListLoading();
-  $errorUserList = this.userService.$selectUserListError();
-  $userList = this.userService.$selectUserList();
-  $userIdSelected = this.userService.$selectUserIdSelected();
+  $loadingUserList!: Signal<boolean>;
+  $errorUserList!: Signal<string | null>;
+  $userList!: Signal<I_USER_ITEM[]>;
+  $userIdSelected!: Signal<string | null>;
 
-  $loadingHobbie = this.userService.$selectUserHobbieLoading();
-  $errorHobbie = this.userService.$selectUserHobbieError();
-  $hobbies = this.userService.$selectHobbies();
+  $loadingHobbie!: Signal<boolean>;
+  $errorHobbie!: Signal<string | null>;
+  $hobbies!:Signal<I_HOBBIE[]>;
+
+  constructor() {
+    this.loggerSignals();
+  }
 
   ngOnInit(): void {
+    this.initializeSignals();
     this.initHomeWorks();
   }
 
@@ -42,14 +49,44 @@ export class HomeComponent implements OnInit {
   }
 
   public reloadUserHobbies(): void {
-    if(this.$userIdSelected() !== null){
+    if (this.$userIdSelected() !== null) {
       this.userService.fetchHobbies(this.$userIdSelected() as string, true);
     }
   }
 
-  private initHomeWorks():void {
+  private initializeSignals(): void {
+    this.$loadingUserList = this.userService.$selectUserListLoading();
+    this.$errorUserList = this.userService.$selectUserListError();
+    this.$userList = this.userService.$selectUserList();
+    this.$userIdSelected = this.userService.$selectUserIdSelected();
+
+    this.$loadingHobbie = this.userService.$selectUserHobbieLoading();
+    this.$errorHobbie = this.userService.$selectUserHobbieError();
+    this.$hobbies = this.userService.$selectHobbies();
+  }
+
+  private initHomeWorks(): void {
     this.userService.resetState();
     this.userService.fetchUserList();
   }
 
+  private loggerSignals(): void{
+    effect(() => {
+      console.log(
+        '---HomeComponent: $loadingUserList: ',
+        this.$loadingUserList()
+      );
+      console.log('---HomeComponent: $errorUserList: ', this.$errorUserList());
+      console.log('---HomeComponent: $userList: ', this.$userList());
+
+      console.log(
+        '---HomeComponent: $userIdSelected: ',
+        this.$userIdSelected()
+      );
+
+      console.log('---HomeComponent: $loadingHobbie: ', this.$loadingHobbie());
+      console.log('---HomeComponent: $errorHobbie: ', this.$errorHobbie());
+      console.log('---HomeComponent: $hobbies: ', this.$hobbies());
+    });
+  }
 }

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { I_HOBBIE } from '../../../services/user-api.service';
+import { I_HOBBIE } from '../../../services/user.service';
 
 @Component({
   selector: 'hobbie',

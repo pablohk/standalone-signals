@@ -14,12 +14,12 @@
         }
       </div>
       @if($userList().length){
-      @for(user of $userList(); track user.id){
-      <div class="clickable" (click)="showUserHobbies(user.id)">
-        <p [ngClass]="{selected: $userIdSelected() === user.id}">({{user.id}}) {{user.name}} {{user.surname}} - {{user.email}}
-        </p>
-      </div>
-      }
+        @for(user of $userList(); track user.id){
+        <div class="clickable" (click)="showUserHobbies(user.id)">
+          <p [ngClass]="{selected: $userIdSelected() === user.id}">({{user.id}}) {{user.name}} {{user.surname}} - {{user.email}}
+          </p>
+        </div>
+        }
       }
     </div>
     <div class="half">
@@ -34,5 +34,4 @@
       <hobbie [$hobbies]="$hobbies()"></hobbie>
     </div>
   </div>
-
 </div>
