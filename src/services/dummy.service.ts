@@ -21,6 +21,11 @@ export class DummyService extends GenericApiService {
   }
 
   // No manejamos aquí el estado,  devolvemos el observable directamente y donde se use se manejará el error
+  /**
+   * Fetches dummy data from the API.
+   * The observable completes after emitting one value.
+   * @returns {Observable<I_Dummy>} An observable containing the dummy data.
+   */
   public fetchDummyData(): Observable<I_Dummy> {
     return this.requestApi<I_Dummy>(
       E_API_METHOD.GET,

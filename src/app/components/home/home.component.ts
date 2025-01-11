@@ -16,7 +16,7 @@ import { NgClass } from '@angular/common';
   imports: [HobbieComponent, NgClass],
   providers: [],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
+  styleUrls: ['./home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit {
@@ -31,29 +31,48 @@ export class HomeComponent implements OnInit {
   $errorHobbie!: Signal<string | null>;
   $hobbies!:Signal<I_HOBBIE[]>;
 
+  /**
+   * Constructor initializes the logger for signals.
+   */
   constructor() {
     this.loggerSignals();
   }
 
+  /**
+   * Lifecycle hook.
+   */
   ngOnInit(): void {
     this.initializeSignals();
     this.initHomeWorks();
   }
 
+  /**
+   * Fetches hobbies for a specific user.
+   * @param id - The ID of the user whose hobbies are to be fetched.
+   */
   public showUserHobbies(id: string): void {
     this.userService.fetchHobbies(id);
   }
 
+  /**
+   * Reloads the user list by fetching it again from the service.
+   */
   public reloadUserList(): void {
     this.userService.fetchUserList();
   }
 
+  /**
+   * Reloads the hobbies for the selected user.
+   */
   public reloadUserHobbies(): void {
     if (this.$userIdSelected() !== null) {
       this.userService.fetchHobbies(this.$userIdSelected() as string, true);
     }
   }
 
+  /**
+   * Initializes the signals by selecting them from the user service.
+   */
   private initializeSignals(): void {
     this.$loadingUserList = this.userService.$selectUserListLoading();
     this.$errorUserList = this.userService.$selectUserListError();
@@ -65,11 +84,17 @@ export class HomeComponent implements OnInit {
     this.$hobbies = this.userService.$selectHobbies();
   }
 
+  /**
+   * Initializes the home component by resetting the state and fetching the user list.
+   */
   private initHomeWorks(): void {
     this.userService.resetState();
     this.userService.fetchUserList();
   }
 
+  /**
+   * Logs the current state of the signals to the console.
+   */
   private loggerSignals(): void{
     effect(() => {
       console.log(

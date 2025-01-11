@@ -17,7 +17,7 @@ import { take } from 'rxjs/operators';
   standalone: true,
   imports: [HobbieComponent],
   templateUrl: './dummy.component.html',
-  styleUrl: './dummy.component.scss',
+  styleUrls: ['./dummy.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DummyComponent implements OnInit {

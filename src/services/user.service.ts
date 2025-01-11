@@ -76,6 +76,19 @@ export class UserService extends GenericApiService {
   public $selectHobbies = () => computed(() => this._$userState().hobbies);
 
   // ACCTIONS
+  /**
+   * Fetches the user list from the API and updates the store with the retrieved data.
+   * 
+   * This method performs the following actions:
+   * 1. Sets the loading state for the user list in the store to `true`.
+   * 2. Clears any existing errors for the user list in the store.
+   * 3. Makes an API request to fetch the user list.
+   * 4. On successful response, updates the store with the retrieved user list.
+   * 5. On error response, sets the error state for the user list in the store.
+   * 6. Finally, sets the loading state for the user list in the store to `false`.
+   * 
+   * @returns {void}
+   */
   public fetchUserList() {
     this.storeSetLoading(USER_SERVICE_ID.USER_LIST, true);
     this.storeSetError(USER_SERVICE_ID.USER_LIST, null);
@@ -98,6 +111,22 @@ export class UserService extends GenericApiService {
       });
   }
 
+  /**
+   * Fetches the hobbies of a user by their ID.
+   * 
+   * @param id - The ID of the user whose hobbies are to be fetched.
+   * @param force - Optional parameter to force the fetch operation even if the user ID matches the selected user ID. Defaults to false.
+   * 
+   * This method checks if the provided user ID is different from the currently selected user ID or if the fetch operation is forced.
+   * If either condition is true, it sets the loading state and clears any existing errors for the user hobbies.
+   * It then makes an API request to fetch the hobbies of the user.
+   * 
+   * The API request is made using the GET method with the user ID as a parameter.
+   * On successful response, it updates the store with the fetched hobbies.
+   * On error, it sets the error state for the user hobbies.
+   * 
+   * The loading state is reset to false once the API request is completed, regardless of success or failure.
+   */
   public fetchHobbies(id: string, force = false) {
     if (this._$userState().userIdSelected !== id || force) {
       this.storeSetLoading(USER_SERVICE_ID.USER_HOBBIES, true);
@@ -136,10 +165,21 @@ export class UserService extends GenericApiService {
   }
 
   // REDUCRES
+  /**
+   * Resets the store by reinitializing the signals.
+   * This method is intended to be used internally to ensure
+   * that the signals are set to their initial state.
+   * 
+   */
   private storeReset(): void {
     this.initializeSignals();
   }
 
+  /**
+   * Updates the state with a new list of users.
+   *
+   * @param response - An array of user items to update the user list with.
+   */
   private storeUpdateUserList(response: I_USER_ITEM[]): void {
     this.updateState({ userList: response, hobbies: [], userIdSelected: null });
   }

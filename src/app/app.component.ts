@@ -7,7 +7,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
   imports: [RouterOutlet, RouterLink],
   providers: [],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrls:['./app.component.scss']
 })
 export class AppComponent {
 }

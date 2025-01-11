@@ -6,7 +6,7 @@ import { I_HOBBIE } from '../../../services/user.service';
   standalone: true,
   imports: [],
   templateUrl: './hobbie.component.html',
-  styleUrl: './hobbie.component.scss',
+  styleUrls: ['./hobbie.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HobbieComponent { 
