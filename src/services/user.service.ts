@@ -213,7 +213,7 @@ export class UserService extends GenericApiService {
       ...state,
       error: {
         ...state.error,
-        [keyname]: value,
+        [keyname]: value || value === null ?  value : 'ERROR DESCONOCIDO',
       },
     }));
   }

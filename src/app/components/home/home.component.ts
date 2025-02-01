@@ -4,6 +4,7 @@ import {
   DestroyRef,
   effect,
   inject,
+  Injector,
   OnInit,
   Signal,
 } from '@angular/core';
@@ -15,8 +16,7 @@ import {
 } from '../../../services/user.service';
 import { NgClass } from '@angular/common';
 import { takeUntilDestroyed, } from '@angular/core/rxjs-interop';
-import { SignalOrObs } from '../../../models/sharedModels';
-
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'home',
@@ -33,10 +33,9 @@ export class HomeComponent implements OnInit {
 
   $loadingUserList!: Signal<boolean>;
   $errorUserList!: Signal<string | null>;
-
   $userList!: Signal<I_USER_ITEM[]>;
   $userIdSelected!: Signal<string | null>;
-  $userRandomNumber!: SignalOrObs<number>;
+  $userRandomNumber!: Signal<number>;
 
   $loadingHobbie!: Signal<boolean>;
   $errorHobbie!: Signal<string | null>;
@@ -45,7 +44,7 @@ export class HomeComponent implements OnInit {
   prueba!: number;
 
   constructor() {
-    this.loggerSignals();
+    // this.loggerSignals();
   }
 
   ngOnInit(): void {
@@ -73,7 +72,7 @@ export class HomeComponent implements OnInit {
     this.$userList = this.userService.$selectUserList();
     this.$userIdSelected = this.userService.$selectUserIdSelected();
     this.$userRandomNumber =
-      this.userService.$selectUserRandomNumber();
+      this.userService.$selectUserRandomNumber() as Signal<number>;
 
     this.$loadingHobbie = this.userService.$selectUserHobbieLoading();
     this.$errorHobbie = this.userService.$selectUserHobbieError();
@@ -115,9 +114,18 @@ export class HomeComponent implements OnInit {
     this.userService.getUserRandomNumber();
   }
 
-
+  /**
+   * Subscribes to the observable `$userRandomNumber` and updates the `prueba` property with the emitted value.
+   * The subscription is automatically cleaned up when the component is destroyed.
+   *
+   * @remarks
+   * This method uses the `toObservable` function to convert a signal to an observable and subscribes to it.
+   * The `takeUntilDestroyed` operator ensures that the subscription is terminated when the component is destroyed.
+   *
+   * @returns {void}
+   */
   public subscribePrueba(): void {
-    this.userService.$selectUserRandomNumber(true)
+    (this.userService.$selectUserRandomNumber(true) as Observable<number>)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value: number) => {
         this.prueba = value;
