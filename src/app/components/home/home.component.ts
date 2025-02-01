@@ -9,9 +9,14 @@ import {
   Signal,
 } from '@angular/core';
 import { HobbieComponent } from '../hobbie/hobbie.component';
-import { I_HOBBIE, I_USER_ITEM, UserService } from '../../../services/user.service';
+import {
+  I_HOBBIE,
+  I_USER_ITEM,
+  UserService,
+} from '../../../services/user.service';
 import { NgClass } from '@angular/common';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, } from '@angular/core/rxjs-interop';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'home',
@@ -23,9 +28,7 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit {
-  
   private readonly userService = inject(UserService);
-  private readonly inj = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
 
   $loadingUserList!: Signal<boolean>;
@@ -38,7 +41,7 @@ export class HomeComponent implements OnInit {
   $errorHobbie!: Signal<string | null>;
   $hobbies!: Signal<I_HOBBIE[]>;
 
-  prueba!:number;
+  prueba!: number;
 
   constructor() {
     // this.loggerSignals();
@@ -62,13 +65,14 @@ export class HomeComponent implements OnInit {
       this.userService.fetchHobbies(this.$userIdSelected() as string, true);
     }
   }
- 
+
   private initializeSignals(): void {
     this.$loadingUserList = this.userService.$selectUserListLoading();
     this.$errorUserList = this.userService.$selectUserListError();
     this.$userList = this.userService.$selectUserList();
     this.$userIdSelected = this.userService.$selectUserIdSelected();
-    this.$userRandomNumber = this.userService.$selectUserRandomNumber() as Signal<number>;
+    this.$userRandomNumber =
+      this.userService.$selectUserRandomNumber() as Signal<number>;
 
     this.$loadingHobbie = this.userService.$selectUserHobbieLoading();
     this.$errorHobbie = this.userService.$selectUserHobbieError();
@@ -110,7 +114,6 @@ export class HomeComponent implements OnInit {
     this.userService.getUserRandomNumber();
   }
 
-  
   /**
    * Subscribes to the observable `$userRandomNumber` and updates the `prueba` property with the emitted value.
    * The subscription is automatically cleaned up when the component is destroyed.
@@ -122,7 +125,7 @@ export class HomeComponent implements OnInit {
    * @returns {void}
    */
   public subscribePrueba(): void {
-    toObservable(this.$userRandomNumber, { injector: this.inj })
+    (this.userService.$selectUserRandomNumber(true) as Observable<number>)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value: number) => {
         this.prueba = value;

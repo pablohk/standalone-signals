@@ -1,5 +1,6 @@
 import {
   computed,
+  inject,
   Injectable,
   Injector,
   signal,
@@ -56,6 +57,8 @@ export class UserService extends GenericApiService {
   private _$userLoading: I_OBJECT<WritableSignal<boolean>> = {};
   private _$userError: I_OBJECT<WritableSignal<string | null>> = {};
 
+    private readonly inj = inject(Injector);
+  
   constructor() {
     super();
     this.initializeSignals();
@@ -83,13 +86,13 @@ export class UserService extends GenericApiService {
   public readonly $selectHobbies = (): Signal<I_HOBBIE[]> =>
     computed(() => this._$userState().hobbies);
 
-  public readonly $selectUserRandomNumber = (inj?:Injector) =>
-    this.signalOrObservable<number>(computed(() => this._$userState().randomNumber), inj??null);
+  public readonly $selectUserRandomNumber = (toObs=false) =>
+    this.signalOrObservable<number>(computed(() => this._$userState().randomNumber), toObs);
 
-  private signalOrObservable<T>(fn: Signal<T>, inj: null | Injector){
-    if(inj){
+  private signalOrObservable<T>(fn: Signal<T>, toObs: boolean){
+    if(toObs){
       return toObservable(fn, {
-        injector: inj,
+        injector: this.inj,
       });
     }
     else {
