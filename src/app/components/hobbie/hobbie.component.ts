@@ -2,11 +2,12 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inje
 import { I_HOBBIE, UserService } from '../../../services/user.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'hobbie',
   standalone: true,
-  imports: [],
+  imports: [AsyncPipe],
   templateUrl: './hobbie.component.html',
   styleUrl: './hobbie.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,13 +19,16 @@ export class HobbieComponent implements OnInit {
   ;
   public $hobbies = input<Array<I_HOBBIE>>();
   public prueba!: number;
-  
+  public prueba$!: Observable<number>;
+
   ngOnInit(): void {
-    (this.userService.$selectUserRandomNumber(true) as Observable<number>)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    const obsRandom = this.userService.$selectUserRandomNumber(true);
+    this.prueba$ = obsRandom;
+
+    obsRandom.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value: number) => {
         this.prueba = value;
-        this.cdr.detectChanges();
+        // this.cdr.detectChanges(); // => si no hubiese el async pipe con prueba$. se necesita forzar el refresco
       });
   }
 }

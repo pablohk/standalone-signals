@@ -8,10 +8,9 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { GenericApiService } from './generic-api.service';
-import { E_API_METHOD, I_OBJECT } from '../models/sharedModels';
+import { E_API_METHOD, I_OBJECT, SignalOrObs } from '../models/sharedModels';
 import { finalize, take } from 'rxjs/operators';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
 
 export interface I_HOBBIE {
   id: string;
@@ -44,6 +43,7 @@ const USER_SERVICE_ID = {
   USER_LIST: 'USER_LIST',
   USER_HOBBIES: 'USER_HOBBIES',
 };
+
 
 @Injectable({
   providedIn: 'root',
@@ -86,19 +86,23 @@ export class UserService extends GenericApiService {
   public readonly $selectHobbies = (): Signal<I_HOBBIE[]> =>
     computed(() => this._$userState().hobbies);
 
-  public readonly $selectUserRandomNumber = (toObs=false) =>
-    this.signalOrObservable<number>(computed(() => this._$userState().randomNumber), toObs);
 
-  private signalOrObservable<T>(fn: Signal<T>, toObs: boolean){
-    if(toObs){
-      return toObservable(fn, {
-        injector: this.inj,
-      });
-    }
-    else {
-      return fn;
-    }
+  public $selectUserRandomNumber(asObservable = false): SignalOrObs<number> {
+    const randomNumberSignal = computed(() => this._$userState().randomNumber);
+    return this.signalOrObservable(randomNumberSignal, asObservable);
   }
+
+
+  private signalOrObservable<T>(
+    signalFn: Signal<T>, 
+    asObservable: boolean
+  ): SignalOrObs<T> {
+    const response = asObservable 
+      ? toObservable(signalFn, { injector: this.inj })
+      : signalFn;
+    return response as SignalOrObs<T>;
+  }
+
   // ACCTIONS
   public fetchUserList() {
     this.storeSetLoading(USER_SERVICE_ID.USER_LIST, true);
