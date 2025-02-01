@@ -1,12 +1,16 @@
 import {
   computed,
   Injectable,
+  Injector,
   signal,
+  Signal,
   WritableSignal,
 } from '@angular/core';
 import { GenericApiService } from './generic-api.service';
 import { E_API_METHOD, I_OBJECT } from '../models/sharedModels';
 import { finalize, take } from 'rxjs/operators';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { Observable } from 'rxjs';
 
 export interface I_HOBBIE {
   id: string;
@@ -25,12 +29,14 @@ export interface I_USER {
   userList: Array<I_USER_ITEM>;
   hobbies: Array<I_HOBBIE>;
   userIdSelected: string | null;
+  randomNumber: number;
 }
 
 const initialUserState: I_USER = {
   userList: [],
   hobbies: [],
   userIdSelected: null,
+  randomNumber: 0,
 };
 
 const USER_SERVICE_ID = {
@@ -56,25 +62,40 @@ export class UserService extends GenericApiService {
   }
 
   // SELECTORS
-  public $selectUserListLoading = () =>
+  public readonly $selectUserListLoading = (): Signal<boolean> =>
     computed(() => this._$userLoading[USER_SERVICE_ID.USER_LIST]());
 
-  public $selectUserListError = () =>
+  public readonly $selectUserListError = (): Signal<string | null> =>
     computed(() => this._$userError[USER_SERVICE_ID.USER_LIST]());
 
-  public $selectUserList = () => computed(() => this._$userState().userList);
+  public readonly $selectUserList = (): Signal<I_USER_ITEM[]> =>
+    computed(() => this._$userState().userList);
 
-  public $selectUserIdSelected = () =>
+  public readonly $selectUserIdSelected = (): Signal<string | null> =>
     computed(() => this._$userState().userIdSelected);
 
-  public $selectUserHobbieLoading = () =>
+  public readonly $selectUserHobbieLoading = (): Signal<boolean> =>
     computed(() => this._$userLoading[USER_SERVICE_ID.USER_HOBBIES]());
 
-  public $selectUserHobbieError = () =>
+  public readonly $selectUserHobbieError = (): Signal<string | null> =>
     computed(() => this._$userError[USER_SERVICE_ID.USER_HOBBIES]());
 
-  public $selectHobbies = () => computed(() => this._$userState().hobbies);
+  public readonly $selectHobbies = (): Signal<I_HOBBIE[]> =>
+    computed(() => this._$userState().hobbies);
 
+  public readonly $selectUserRandomNumber = (inj?:Injector) =>
+    this.signalOrObservable<number>(computed(() => this._$userState().randomNumber), inj??null);
+
+  private signalOrObservable<T>(fn: Signal<T>, inj: null | Injector){
+    if(inj){
+      return toObservable(fn, {
+        injector: inj,
+      });
+    }
+    else {
+      return fn;
+    }
+  }
   // ACCTIONS
   public fetchUserList() {
     this.storeSetLoading(USER_SERVICE_ID.USER_LIST, true);
@@ -131,6 +152,11 @@ export class UserService extends GenericApiService {
     }
   }
 
+  public getUserRandomNumber(): void {
+    const value = Math.floor(Math.random() * 100);
+    this.storeSetRandomNumber(value);
+  }
+
   public resetState(): void {
     this.storeReset();
   }
@@ -146,6 +172,10 @@ export class UserService extends GenericApiService {
 
   private storeUpdateHobbies(response: I_HOBBIE[], id: string): void {
     this.updateState({ hobbies: response, userIdSelected: id });
+  }
+
+  private storeSetRandomNumber(value: number): void {
+    this.updateState({ randomNumber: value });
   }
 
   private storeSetLoading(keyname: string, value: boolean) {

@@ -6,6 +6,14 @@
 
 .home-container {
   position: relative;
+  .prueba{
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    gap: 2rem;
+    border: 1px solid red;
+    margin: 1rem;
+  }
   .header {
     display: grid;
     grid-template-columns: 8fr 4fr;

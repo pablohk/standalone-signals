@@ -3,6 +3,14 @@
     <p>Users <button (click)="reloadUserList()">Reload</button></p>
     <p>Hobbies <button (click)="reloadUserHobbies()">Reload</button></p>
   </div>
+  <div class="prueba">
+    <div>
+      <button (click)="getRandomNumber()">Random</button>
+      <span> {{$userRandomNumber()}}</span>
+    </div>
+    <p> Obtener Randon desde Observable: {{prueba}}</p>
+  </div>
+
   <div class="content">
     <div class="half">
       <div [ngClass]="{'full': $loadingUserList() || $errorUserList()}">

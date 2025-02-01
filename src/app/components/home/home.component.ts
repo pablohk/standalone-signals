@@ -1,14 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   effect,
   inject,
+  Injector,
   OnInit,
   Signal,
 } from '@angular/core';
 import { HobbieComponent } from '../hobbie/hobbie.component';
 import { I_HOBBIE, I_USER_ITEM, UserService } from '../../../services/user.service';
 import { NgClass } from '@angular/common';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'home',
@@ -20,19 +23,25 @@ import { NgClass } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit {
-  private userService = inject(UserService);
+  
+  private readonly userService = inject(UserService);
+  private readonly inj = inject(Injector);
+  private readonly destroyRef = inject(DestroyRef);
 
   $loadingUserList!: Signal<boolean>;
   $errorUserList!: Signal<string | null>;
   $userList!: Signal<I_USER_ITEM[]>;
   $userIdSelected!: Signal<string | null>;
+  $userRandomNumber!: Signal<number>;
 
   $loadingHobbie!: Signal<boolean>;
   $errorHobbie!: Signal<string | null>;
-  $hobbies!:Signal<I_HOBBIE[]>;
+  $hobbies!: Signal<I_HOBBIE[]>;
+
+  prueba!:number;
 
   constructor() {
-    this.loggerSignals();
+    // this.loggerSignals();
   }
 
   ngOnInit(): void {
@@ -53,12 +62,13 @@ export class HomeComponent implements OnInit {
       this.userService.fetchHobbies(this.$userIdSelected() as string, true);
     }
   }
-
+ 
   private initializeSignals(): void {
     this.$loadingUserList = this.userService.$selectUserListLoading();
     this.$errorUserList = this.userService.$selectUserListError();
     this.$userList = this.userService.$selectUserList();
     this.$userIdSelected = this.userService.$selectUserIdSelected();
+    this.$userRandomNumber = this.userService.$selectUserRandomNumber() as Signal<number>;
 
     this.$loadingHobbie = this.userService.$selectUserHobbieLoading();
     this.$errorHobbie = this.userService.$selectUserHobbieError();
@@ -68,9 +78,10 @@ export class HomeComponent implements OnInit {
   private initHomeWorks(): void {
     this.userService.resetState();
     this.userService.fetchUserList();
+    this.subscribePrueba();
   }
 
-  private loggerSignals(): void{
+  private loggerSignals(): void {
     effect(() => {
       console.log(
         '---HomeComponent: $loadingUserList: ',
@@ -84,9 +95,37 @@ export class HomeComponent implements OnInit {
         this.$userIdSelected()
       );
 
+      console.log(
+        '---HomeComponent: $userRandomNumber: ',
+        this.$userRandomNumber()
+      );
+
       console.log('---HomeComponent: $loadingHobbie: ', this.$loadingHobbie());
       console.log('---HomeComponent: $errorHobbie: ', this.$errorHobbie());
       console.log('---HomeComponent: $hobbies: ', this.$hobbies());
     });
+  }
+
+  getRandomNumber(): void {
+    this.userService.getUserRandomNumber();
+  }
+
+  
+  /**
+   * Subscribes to the observable `$userRandomNumber` and updates the `prueba` property with the emitted value.
+   * The subscription is automatically cleaned up when the component is destroyed.
+   *
+   * @remarks
+   * This method uses the `toObservable` function to convert a signal to an observable and subscribes to it.
+   * The `takeUntilDestroyed` operator ensures that the subscription is terminated when the component is destroyed.
+   *
+   * @returns {void}
+   */
+  public subscribePrueba(): void {
+    toObservable(this.$userRandomNumber, { injector: this.inj })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value: number) => {
+        this.prueba = value;
+      });
   }
 }
