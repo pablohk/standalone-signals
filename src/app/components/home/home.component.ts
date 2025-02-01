@@ -4,7 +4,6 @@ import {
   DestroyRef,
   effect,
   inject,
-  Injector,
   OnInit,
   Signal,
 } from '@angular/core';
@@ -34,6 +33,7 @@ export class HomeComponent implements OnInit {
 
   $loadingUserList!: Signal<boolean>;
   $errorUserList!: Signal<string | null>;
+
   $userList!: Signal<I_USER_ITEM[]>;
   $userIdSelected!: Signal<string | null>;
   $userRandomNumber!: SignalOrObs<number>;
@@ -45,7 +45,7 @@ export class HomeComponent implements OnInit {
   prueba!: number;
 
   constructor() {
-    // this.loggerSignals();
+    this.loggerSignals();
   }
 
   ngOnInit(): void {
@@ -102,7 +102,7 @@ export class HomeComponent implements OnInit {
 
       console.log(
         '---HomeComponent: $userRandomNumber: ',
-        this.$userRandomNumber
+        this.$userRandomNumber()
       );
 
       console.log('---HomeComponent: $loadingHobbie: ', this.$loadingHobbie());

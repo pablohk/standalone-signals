@@ -5,7 +5,6 @@ import {
   Injector,
   signal,
   Signal,
-  WritableSignal,
 } from '@angular/core';
 import { GenericApiService } from './generic-api.service';
 import { E_API_METHOD, I_OBJECT, SignalOrObs } from '../models/sharedModels';
@@ -32,11 +31,18 @@ export interface I_USER {
   randomNumber: number;
 }
 
-const initialUserState: I_USER = {
+export interface I_USER_STATE extends I_USER {
+  loading: I_OBJECT<boolean>;
+  error: I_OBJECT<string | null>;
+}
+
+const initialUserState: I_USER_STATE = {
   userList: [],
   hobbies: [],
   userIdSelected: null,
   randomNumber: 0,
+  loading: {},
+  error: {}
 };
 
 const USER_SERVICE_ID = {
@@ -53,12 +59,10 @@ export class UserService extends GenericApiService {
   private readonly USER_ENDPOINT = '/users';
   private readonly USER_HOBBIES_ENDPOINT = '/hobbies';
 
-  private _$userState!: WritableSignal<I_USER>;
-  private _$userLoading: I_OBJECT<WritableSignal<boolean>> = {};
-  private _$userError: I_OBJECT<WritableSignal<string | null>> = {};
+  private readonly _$state = signal<I_USER_STATE>(initialUserState);
 
-    private readonly inj = inject(Injector);
-  
+  private readonly inj = inject(Injector);
+
   constructor() {
     super();
     this.initializeSignals();
@@ -66,38 +70,38 @@ export class UserService extends GenericApiService {
 
   // SELECTORS
   public readonly $selectUserListLoading = (): Signal<boolean> =>
-    computed(() => this._$userLoading[USER_SERVICE_ID.USER_LIST]());
+    computed(() => this._$state().loading[USER_SERVICE_ID.USER_LIST] ?? false);
 
   public readonly $selectUserListError = (): Signal<string | null> =>
-    computed(() => this._$userError[USER_SERVICE_ID.USER_LIST]());
+    computed(() => this._$state().error[USER_SERVICE_ID.USER_LIST] ?? null);
 
   public readonly $selectUserList = (): Signal<I_USER_ITEM[]> =>
-    computed(() => this._$userState().userList);
+    computed(() => this._$state().userList);
 
   public readonly $selectUserIdSelected = (): Signal<string | null> =>
-    computed(() => this._$userState().userIdSelected);
+    computed(() => this._$state().userIdSelected);
 
   public readonly $selectUserHobbieLoading = (): Signal<boolean> =>
-    computed(() => this._$userLoading[USER_SERVICE_ID.USER_HOBBIES]());
+    computed(
+      () => this._$state().loading[USER_SERVICE_ID.USER_HOBBIES] ?? false
+    );
 
   public readonly $selectUserHobbieError = (): Signal<string | null> =>
-    computed(() => this._$userError[USER_SERVICE_ID.USER_HOBBIES]());
+    computed(() => this._$state().error[USER_SERVICE_ID.USER_HOBBIES] ?? null);
 
   public readonly $selectHobbies = (): Signal<I_HOBBIE[]> =>
-    computed(() => this._$userState().hobbies);
-
+    computed(() => this._$state().hobbies);
 
   public $selectUserRandomNumber(asObservable = false): SignalOrObs<number> {
-    const randomNumberSignal = computed(() => this._$userState().randomNumber);
+    const randomNumberSignal = computed(() => this._$state().randomNumber);
     return this.signalOrObservable(randomNumberSignal, asObservable);
   }
 
-
   private signalOrObservable<T>(
-    signalFn: Signal<T>, 
+    signalFn: Signal<T>,
     asObservable: boolean
   ): SignalOrObs<T> {
-    const response = asObservable 
+    const response = asObservable
       ? toObservable(signalFn, { injector: this.inj })
       : signalFn;
     return response as SignalOrObs<T>;
@@ -105,29 +109,38 @@ export class UserService extends GenericApiService {
 
   // ACCTIONS
   public fetchUserList() {
-    this.storeSetLoading(USER_SERVICE_ID.USER_LIST, true);
-    this.storeSetError(USER_SERVICE_ID.USER_LIST, null);
+    // Si esta en estado loading evitar que haga una nueva llamada
+    // En algunos casos puede que queramos hacer esa llamada y en tal caso
+    // no incluiríamos esta comprobación
+    if (!this._$state().loading[USER_SERVICE_ID.USER_LIST]) {
+      this.storeSetLoading(USER_SERVICE_ID.USER_LIST, true);
+      this.storeSetError(USER_SERVICE_ID.USER_LIST, null);
 
-    this.requestApi<Array<I_USER_ITEM>>(
-      E_API_METHOD.GET,
-      `${this.BASE_PATH}${this.USER_ENDPOINT}`
-    )
-      .pipe(
-        take(1),
-        finalize(() => this.storeSetLoading(USER_SERVICE_ID.USER_LIST, false))
+      this.requestApi<Array<I_USER_ITEM>>(
+        E_API_METHOD.GET,
+        `${this.BASE_PATH}${this.USER_ENDPOINT}`
       )
-      .subscribe({
-        next: (response) => {
-          this.storeUpdateUserList(response);
-        },
-        error: (error) => {
-          this.storeSetError(USER_SERVICE_ID.USER_LIST, error);
-        },
-      });
+        .pipe(
+          take(1),
+          finalize(() => this.storeSetLoading(USER_SERVICE_ID.USER_LIST, false))
+        )
+        .subscribe({
+          next: (response) => {
+            this.storeUpdateUserList(response);
+          },
+          error: (error: Error) => {
+            this.storeSetError(USER_SERVICE_ID.USER_LIST, error.message);
+          },
+        });
+    }
   }
 
   public fetchHobbies(id: string, force = false) {
-    if (this._$userState().userIdSelected !== id || force) {
+    // Si esta en estado loading evitar que haga una nueva llamada
+    // En algunos casos puede que queramos hacer esa llamada y en tal caso
+    // no incluiríamos esta comprobación
+    if (!this._$state().loading[USER_SERVICE_ID.USER_HOBBIES] 
+      && (this._$state().userIdSelected !== id || force)) {
       this.storeSetLoading(USER_SERVICE_ID.USER_HOBBIES, true);
       this.storeSetError(USER_SERVICE_ID.USER_HOBBIES, null);
 
@@ -186,24 +199,36 @@ export class UserService extends GenericApiService {
   }
 
   private storeSetLoading(keyname: string, value: boolean) {
-    this._$userLoading[keyname].set(value);
+    this._$state.update((state) => ({
+      ...state,
+      loading: {
+        ...state.loading,
+        [keyname]: value,
+      },
+    }));
   }
 
   private storeSetError(keyname: string, value: string | null) {
-    this._$userError[keyname].set(value);
+    this._$state.update((state) => ({
+      ...state,
+      error: {
+        ...state.error,
+        [keyname]: value,
+      },
+    }));
   }
 
   // HELPERS
   private initializeSignals(): void {
-    this._$userState = signal<I_USER>(initialUserState);
-    Object.values(USER_SERVICE_ID).forEach((keyName) => {
-      this._$userLoading[keyName] = signal<boolean>(false);
-      this._$userError[keyName] = signal<string | null>(null);
-    });
+    this._$state.update((_state) => ({
+      ..._state,
+      loading: {},
+      error: {},
+    }));
   }
 
   private updateState(payload: I_OBJECT): void {
-    this._$userState.update((_state) => ({
+    this._$state.update((_state) => ({
       ..._state,
       ...payload,
     }));
