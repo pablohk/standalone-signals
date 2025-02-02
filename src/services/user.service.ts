@@ -10,6 +10,7 @@ import { GenericApiService } from './generic-api.service';
 import { E_API_METHOD, I_OBJECT, SignalOrObs } from '../models/sharedModels';
 import { finalize, take } from 'rxjs/operators';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { Observable } from 'rxjs';
 
 export interface I_HOBBIE {
   id: string;
@@ -50,6 +51,10 @@ const USER_SERVICE_ID = {
   USER_HOBBIES: 'USER_HOBBIES',
 };
 
+type T_SorObs<T,D> = D extends true
+  ? Observable<T>
+  : Signal<T>;
+
 
 @Injectable({
   providedIn: 'root',
@@ -63,9 +68,27 @@ export class UserService extends GenericApiService {
 
   private readonly inj = inject(Injector);
 
+  sss!: Signal<number>;
+  ooo!: Observable<number>;
+
+  sssOrooo<T,D=null>(isObs=false){
+     
+    const comp = computed(() => this._$state().randomNumber);
+
+    const res= isObs ? toObservable(comp, { injector: this.inj }) : comp;
+    return res as T_SorObs<T, D>;
+  }
+
+  pru() {
+    this.sss = this.sssOrooo<number>();
+    this.ooo = this.sssOrooo<number,true>(true);
+    this.ooo.subscribe(e=>console.log(e));
+  }
+
   constructor() {
     super();
     this.initializeSignals();
+    this.pru()
   }
 
   // SELECTORS
@@ -139,8 +162,10 @@ export class UserService extends GenericApiService {
     // Si esta en estado loading evitar que haga una nueva llamada
     // En algunos casos puede que queramos hacer esa llamada y en tal caso
     // no incluiríamos esta comprobación
-    if (!this._$state().loading[USER_SERVICE_ID.USER_HOBBIES] 
-      && (this._$state().userIdSelected !== id || force)) {
+    if (
+      !this._$state().loading[USER_SERVICE_ID.USER_HOBBIES] &&
+      (this._$state().userIdSelected !== id || force)
+    ) {
       this.storeSetLoading(USER_SERVICE_ID.USER_HOBBIES, true);
       this.storeSetError(USER_SERVICE_ID.USER_HOBBIES, null);
 
@@ -213,7 +238,7 @@ export class UserService extends GenericApiService {
       ...state,
       error: {
         ...state.error,
-        [keyname]: value || value === null ?  value : 'ERROR DESCONOCIDO',
+        [keyname]: value || value === null ? value : 'ERROR DESCONOCIDO',
       },
     }));
   }
