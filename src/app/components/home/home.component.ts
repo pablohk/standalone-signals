@@ -65,16 +65,16 @@ export class HomeComponent implements OnInit {
   }
 
   private initializeSignals(): void {
-    this.$loadingUserList = this.userService.$selectUserListLoading();
-    this.$errorUserList = this.userService.$selectUserListError();
-    this.$userList = this.userService.$selectUserList();
-    this.$userIdSelected = this.userService.$selectUserIdSelected();
+    this.$loadingUserList = this.userService.$selectUserListLoading<false>(false);
+    this.$errorUserList = this.userService.$selectUserListError<false>(false);
+    this.$userList = this.userService.$selectUserList<false>(false);
+    this.$userIdSelected = this.userService.$selectUserIdSelected<false>(false);
     this.$userRandomNumber =
-      this.userService.$selectUserRandomNumber();
+      this.userService.$selectUserRandomNumber<false>(false);
 
-    this.$loadingHobbie = this.userService.$selectUserHobbieLoading();
-    this.$errorHobbie = this.userService.$selectUserHobbieError();
-    this.$hobbies = this.userService.$selectHobbies();
+    this.$loadingHobbie = this.userService.$selectUserHobbieLoading<false>(false);
+    this.$errorHobbie = this.userService.$selectUserHobbieError<false>(false);
+    this.$hobbies = this.userService.$selectHobbies<false>(false);
   }
 
   private initHomeWorks(): void {
@@ -113,7 +113,7 @@ export class HomeComponent implements OnInit {
   }
 
   public subscribePrueba(): void {
-    this.userService.$selectUserRandomNumber(true)
+    this.userService.$selectUserRandomNumber<true>(true)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value: number) => {
         this.prueba = value;

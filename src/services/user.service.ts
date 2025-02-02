@@ -11,6 +11,7 @@ import { E_API_METHOD, I_OBJECT, SignalOrObs } from '../models/sharedModels';
 import { finalize, take } from 'rxjs/operators';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
+import { signalOrObservable } from '../utils/shared.utils';
 
 export interface I_HOBBIE {
   id: string;
@@ -51,11 +52,6 @@ const USER_SERVICE_ID = {
   USER_HOBBIES: 'USER_HOBBIES',
 };
 
-type T_SorObs<T,D> = D extends true
-  ? Observable<T>
-  : Signal<T>;
-
-
 @Injectable({
   providedIn: 'root',
 })
@@ -68,67 +64,51 @@ export class UserService extends GenericApiService {
 
   private readonly inj = inject(Injector);
 
-  sss!: Signal<number>;
-  ooo!: Observable<number>;
-
-  sssOrooo<T,D=null>(isObs=false){
-     
-    const comp = computed(() => this._$state().randomNumber);
-
-    const res= isObs ? toObservable(comp, { injector: this.inj }) : comp;
-    return res as T_SorObs<T, D>;
-  }
-
-  pru() {
-    this.sss = this.sssOrooo<number>();
-    this.ooo = this.sssOrooo<number,true>(true);
-    this.ooo.subscribe(e=>console.log(e));
-  }
-
   constructor() {
     super();
     this.initializeSignals();
-    this.pru()
   }
 
   // SELECTORS
-  public readonly $selectUserListLoading = (): Signal<boolean> =>
-    computed(() => this._$state().loading[USER_SERVICE_ID.USER_LIST] ?? false);
-
-  public readonly $selectUserListError = (): Signal<string | null> =>
-    computed(() => this._$state().error[USER_SERVICE_ID.USER_LIST] ?? null);
-
-  public readonly $selectUserList = (): Signal<I_USER_ITEM[]> =>
-    computed(() => this._$state().userList);
-
-  public readonly $selectUserIdSelected = (): Signal<string | null> =>
-    computed(() => this._$state().userIdSelected);
-
-  public readonly $selectUserHobbieLoading = (): Signal<boolean> =>
-    computed(
-      () => this._$state().loading[USER_SERVICE_ID.USER_HOBBIES] ?? false
-    );
-
-  public readonly $selectUserHobbieError = (): Signal<string | null> =>
-    computed(() => this._$state().error[USER_SERVICE_ID.USER_HOBBIES] ?? null);
-
-  public readonly $selectHobbies = (): Signal<I_HOBBIE[]> =>
-    computed(() => this._$state().hobbies);
-
-  public $selectUserRandomNumber(asObservable = false): SignalOrObs<number> {
-    const randomNumberSignal = computed(() => this._$state().randomNumber);
-    return this.signalOrObservable(randomNumberSignal, asObservable);
+  public readonly $selectUserListLoading = <D>(isObs: D)=>{
+    const fn = computed(() => this._$state().loading[USER_SERVICE_ID.USER_LIST] ?? false);
+    return signalOrObservable<boolean, D>(fn, isObs, this.inj);
   }
 
-  private signalOrObservable<T>(
-    signalFn: Signal<T>,
-    asObservable: boolean
-  ): SignalOrObs<T> {
-    const response = asObservable
-      ? toObservable(signalFn, { injector: this.inj })
-      : signalFn;
-    return response as SignalOrObs<T>;
+  public readonly $selectUserListError = <D>(isObs: D) => {
+    const fn = computed(() => this._$state().error[USER_SERVICE_ID.USER_LIST] ?? null);
+    return signalOrObservable<string | null, D>(fn, isObs, this.inj);
   }
+
+  public readonly $selectUserList = <D>(isObs: D) =>{
+    const fn = computed(() => this._$state().userList);
+    return signalOrObservable<I_USER_ITEM[], D>(fn, isObs, this.inj);
+  }
+
+  public readonly $selectUserIdSelected = <D>(isObs: D) =>{
+    const fn = computed(() => this._$state().userIdSelected);
+    return signalOrObservable<string | null, D>(fn, isObs, this.inj);
+  }
+
+  public readonly $selectUserHobbieLoading = <D>(isObs: D) =>{
+    const fn = computed(() => this._$state().loading[USER_SERVICE_ID.USER_HOBBIES] ?? false);
+    return signalOrObservable<boolean, D>(fn, isObs, this.inj);
+  }
+
+  public readonly $selectUserHobbieError = <D>(isObs: D) => {
+    const fn = computed(() => this._$state().error[USER_SERVICE_ID.USER_HOBBIES] ?? null);
+    return signalOrObservable<string | null, D>(fn, isObs, this.inj);
+  };
+
+  public readonly $selectHobbies = <D>(isObs: D) => {
+    const fn = computed(() => this._$state().hobbies);
+    return signalOrObservable<I_HOBBIE[], D>(fn, isObs, this.inj);
+  };
+
+  public readonly $selectUserRandomNumber = <D>(isObs: D) => {
+    const fn = computed(() => this._$state().randomNumber);
+    return signalOrObservable<number, D>(fn, isObs, this.inj);
+  };
 
   // ACCTIONS
   public fetchUserList() {

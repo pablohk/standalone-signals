@@ -12,7 +12,8 @@
     justify-content: flex-start;
     gap: 2rem;
     border: 1px solid red;
-    margin: 1rem;
+    padding: 1rem;
+    margin: 1rem 0.5rem
   }
   .header {
     display: grid;
@@ -28,7 +29,7 @@
 
   .content {
     display: grid;
-    grid-template-columns: 8fr 4fr;
+    grid-template-columns: 7fr 5fr;
     align-items: flex-start;
     justify-content: flex-start;
     gap: 1rem;
@@ -49,6 +50,10 @@
       }
       .selected {
         color: blue;
+      }
+      &:first-child {
+        border-right: 1px solid #000;
+
       }
     }
   }

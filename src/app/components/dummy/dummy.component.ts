@@ -35,8 +35,8 @@ export class DummyComponent implements OnInit {
   }
 
   private initializeSignals(): void{
-    this.$userList = this.userService.$selectUserList();
-    this.$hobbies = this.userService.$selectHobbies();
+    this.$userList = this.userService.$selectUserList<false>(false);
+    this.$hobbies = this.userService.$selectHobbies<false>(false);
   
     this.$dummyData= signal(null);
     this.$error= signal(null);

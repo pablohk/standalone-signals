@@ -26,10 +26,10 @@ export class HobbieComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   public $hobbies = input<Array<I_HOBBIE>>();
   public prueba!: number;
-  public prueba$!: Observable<number>;
+  public prueba$!: Observable<number>
 
   ngOnInit(): void {
-    const obsRandom = this.userService.$selectUserRandomNumber(true);
+    const obsRandom = this.userService.$selectUserRandomNumber<true>(true);
     this.prueba$ = obsRandom;
 
     obsRandom

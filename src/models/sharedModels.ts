@@ -13,4 +13,7 @@ export enum E_API_METHOD {
   PATCH = 'PATCH',
 }
 
-export type SignalOrObs <T> = Signal<T> & Observable<T>
+export type SignalOrObs <T,D> = D extends true
+  ? Observable<T>
+  : Signal<T>;
+
